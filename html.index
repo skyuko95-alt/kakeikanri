@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>夫婦の家計報告マネージャー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+        body { font-family: 'Inter', 'sans-serif'; }
+        
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #4f46e5;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+    <div class="max-w-4xl mx-auto p-4 md:p-8">
+        <!-- Header -->
+        <header class="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 p-2 rounded-lg shadow-lg text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900 leading-tight">夫婦の家計報告マネージャー</h1>
+                    <p class="text-xs text-slate-500 font-medium tracking-wide">元利均等・残債可視化システム</p>
+                </div>
+            </div>
+            <button id="sendEmailBtn" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl transition shadow-lg active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                <span>Gmailで報告を作成</span>
+            </button>
+        </header>
+
+        <!-- Global Configuration -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                <label class="text-xs font-bold text-slate-400 uppercase flex items-center gap-1 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    報告対象月
+                </label>
+                <input type="month" id="reportDate" value="2026-04" class="w-full border rounded-lg p-2 font-medium focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer bg-slate-50">
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                <label class="text-xs font-bold text-slate-400 uppercase flex items-center gap-1 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    送信先アドレス1
+                </label>
+                <input type="email" id="recipientEmail" placeholder="email1@mail.com" class="w-full border rounded-lg p-2 font-medium focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50 text-xs">
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                <label class="text-xs font-bold text-slate-400 uppercase flex items-center gap-1 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    送信先アドレス2
+                </label>
+                <input type="email" id="recipientEmail2" placeholder="email2@mail.com" class="w-full border rounded-lg p-2 font-medium focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50 text-xs">
+            </div>
+
+            <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100 flex flex-col justify-center">
+                <label class="text-xs font-bold text-indigo-400 uppercase flex items-center gap-1 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    楽天カード合計
+                </label>
+                <input type="number" id="commonCardAmount" value="" class="w-full border-b bg-transparent border-indigo-200 p-1 text-xl font-bold text-indigo-900 outline-none mb-1" placeholder="金額">
+                <div class="flex items-center gap-2 mb-1">
+                    <input type="range" id="husbandRatio" min="0" max="100" value="50" class="flex-1 accent-indigo-600 h-1">
+                    <span id="husbandRatioDisplay" class="font-mono font-bold text-indigo-900 text-[10px] w-6 text-right">50%</span>
+                </div>
+                <label class="flex items-center gap-2 text-[9px] text-indigo-600 font-bold cursor-pointer">
+                    <input type="checkbox" id="includeRatioActive" checked class="w-3 h-3 rounded text-indigo-600">
+                    比率を報告に含める
+                </label>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Husband Column -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-blue-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-blue-800">夫の支出設定</h2>
+                    <div class="text-right">
+                        <span class="text-[10px] block text-slate-400 uppercase font-bold tracking-tighter">Selected Month</span>
+                        <span id="husbandCount" class="text-xs font-bold text-slate-600">支払い 1回目</span>
+                    </div>
+                </div>
+                <div class="p-6 space-y-8">
+                    <!-- Mortgage -->
+                    <section class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <label class="flex items-center gap-2 text-sm text-indigo-600 font-semibold cursor-pointer">
+                                <input type="checkbox" id="husbandMortgageActive" checked class="w-4 h-4 rounded text-indigo-600">
+                                住宅ローンを計上する
+                            </label>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                            <div><span class="text-[9px] font-bold text-slate-400 uppercase block">借入総額 (固定)</span><span class="text-sm font-bold text-slate-600">26,300,000 円</span></div>
+                            <div class="text-right"><span class="text-[9px] font-bold text-slate-400 uppercase block">期間 (固定)</span><span class="text-sm font-bold text-slate-600">35年 (元利均等)</span></div>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+                            <label class="text-[10px] font-bold text-indigo-500 uppercase flex items-center gap-1 mb-2">適用金利を入力 (%)</label>
+                            <input type="number" id="husbandMortgageRate" step="0.01" value="0.50" class="w-full text-2xl font-black text-slate-800 outline-none focus:text-indigo-600">
+                            <div class="absolute top-0 right-0 w-1 h-full bg-blue-500 opacity-30"></div>
+                        </div>
+                        <div class="bg-slate-900 rounded-2xl p-4 text-white space-y-3 shadow-lg">
+                            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                                <div class="flex flex-col"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Remaining Balance</span><span id="husbandRemaining" class="text-sm font-mono text-indigo-400 font-bold">0 円</span></div>
+                                <span id="husbandProgress" class="text-[10px] font-bold bg-white/10 px-2 py-1 rounded">進捗 0.0%</span>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div class="flex flex-col"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Fixed Monthly Payment</span><span id="husbandMonthlyMortgage" class="text-2xl font-black">0 円</span></div>
+                                <div class="text-right text-[10px] text-slate-300">
+                                    <div id="husbandPrincipalPart">元金: 0 円</div><div id="husbandInterestPart">利息: 0 円</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- Cards -->
+                    <section class="space-y-4">
+                        <div class="p-4 border rounded-2xl bg-white shadow-sm space-y-3">
+                            <label class="flex items-center gap-2 text-sm text-indigo-600 font-semibold cursor-pointer">
+                                <input type="checkbox" id="husbandCard1Active" checked class="w-4 h-4 rounded text-indigo-600"> 個人カード利用分
+                            </label>
+                            <div class="flex gap-3 items-end">
+                                <div class="flex-1"><input type="text" id="husbandCard1Name" value="個人カードA" class="w-full text-xs border-b border-slate-100 outline-none focus:border-indigo-400 py-1"></div>
+                                <div class="flex-[2]"><input type="number" id="husbandCard1Amount" value="" placeholder="0" class="w-full text-right font-mono font-bold text-xl outline-none"></div>
+                            </div>
+                        </div>
+                        <div id="husbandCard2Box" class="p-4 border rounded-2xl shadow-sm bg-indigo-50 border-indigo-100 space-y-3">
+                            <label class="flex items-center gap-2 text-sm text-indigo-600 font-semibold cursor-pointer">
+                                <input type="checkbox" id="husbandCard2Active" checked class="w-4 h-4 rounded text-indigo-600"> 楽天カード負担分
+                            </label>
+                            <div class="flex justify-between items-center px-1">
+                                <span class="text-[9px] text-indigo-400 font-bold uppercase tracking-widest text-indigo-300">Share</span>
+                                <span id="husbandCard2Amount" class="text-xl font-mono font-bold text-indigo-700 text-right">0 円</span>
+                            </div>
+                        </div>
+                    </section>
+                    <div class="pt-6 border-t border-slate-100 flex justify-between items-center">
+                        <span class="font-bold text-slate-400 text-[10px] uppercase tracking-widest">SUBTOTAL</span>
+                        <span id="husbandTotal" class="text-3xl font-black text-blue-600">0 円</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wife Column -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-rose-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-rose-800">妻の支出設定</h2>
+                    <div class="text-right">
+                        <span class="text-[10px] block text-slate-400 uppercase font-bold tracking-tighter">Selected Month</span>
+                        <span id="wifeCount" class="text-xs font-bold text-slate-600">支払い 1回目</span>
+                    </div>
+                </div>
+                <div class="p-6 space-y-8">
+                    <!-- Mortgage -->
+                    <section class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <label class="flex items-center gap-2 text-sm text-indigo-600 font-semibold cursor-pointer">
+                                <input type="checkbox" id="wifeMortgageActive" checked class="w-4 h-4 rounded text-indigo-600">
+                                住宅ローンを計上する
+                            </label>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                            <div><span class="text-[9px] font-bold text-slate-400 uppercase block">借入総額 (固定)</span><span class="text-sm font-bold text-slate-600">20,000,000 円</span></div>
+                            <div class="text-right"><span class="text-[9px] font-bold text-slate-400 uppercase block">期間 (固定)</span><span class="text-sm font-bold text-slate-600">35年 (元利均等)</span></div>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+                            <label class="text-[10px] font-bold text-indigo-500 uppercase flex items-center gap-1 mb-2">適用金利を入力 (%)</label>
+                            <input type="number" id="wifeMortgageRate" step="0.01" value="0.50" class="w-full text-2xl font-black text-slate-800 outline-none focus:text-indigo-600">
+                            <div class="absolute top-0 right-0 w-1 h-full bg-rose-500 opacity-30"></div>
+                        </div>
+                        <div class="bg-slate-900 rounded-2xl p-4 text-white space-y-3 shadow-lg">
+                            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                                <div class="flex flex-col"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Remaining Balance</span><span id="wifeRemaining" class="text-sm font-mono text-indigo-400 font-bold">0 円</span></div>
+                                <span id="wifeProgress" class="text-[10px] font-bold bg-white/10 px-2 py-1 rounded">進捗 0.0%</span>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div class="flex flex-col"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Fixed Monthly Payment</span><span id="wifeMonthlyMortgage" class="text-2xl font-black">0 円</span></div>
+                                <div class="text-right text-[10px] text-slate-300">
+                                    <div id="wifePrincipalPart">元金: 0 円</div><div id="wifeInterestPart">利息: 0 円</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- Cards (Wife only has 楽天カード share) -->
+                    <section class="space-y-4">
+                        <div id="wifeCard2Box" class="p-4 border rounded-2xl shadow-sm bg-indigo-50 border-indigo-100 space-y-3">
+                            <label class="flex items-center gap-2 text-sm text-indigo-600 font-semibold cursor-pointer">
+                                <input type="checkbox" id="wifeCard2Active" checked class="w-4 h-4 rounded text-indigo-600"> 楽天カード負担分
+                            </label>
+                            <div class="flex justify-between items-center px-1">
+                                <span class="text-[9px] text-indigo-400 font-bold uppercase tracking-widest text-indigo-300">Share</span>
+                                <span id="wifeCard2Amount" class="text-xl font-mono font-bold text-indigo-700 text-right">0 円</span>
+                            </div>
+                        </div>
+                    </section>
+                    <div class="pt-6 border-t border-slate-100 flex justify-between items-center">
+                        <span class="font-bold text-slate-400 text-[10px] uppercase tracking-widest">SUBTOTAL</span>
+                        <span id="wifeTotal" class="text-3xl font-black text-rose-600">0 円</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grand Total Summary -->
+        <div class="mt-8 bg-slate-900 text-white rounded-[2rem] p-8 shadow-2xl relative overflow-hidden border border-white/5">
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="text-center md:text-left">
+                    <p id="totalMonthLabel" class="text-indigo-400 text-xs font-bold mb-2 uppercase tracking-[0.2em]">Household Total</p>
+                    <h2 class="text-6xl font-black text-white leading-none">
+                        <span id="grandTotal">0</span>
+                        <span class="text-2xl ml-1 font-light opacity-30 text-white font-serif italic">円</span>
+                    </h2>
+                </div>
+                <div class="flex gap-8 bg-white/5 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+                    <div class="flex flex-col items-center">
+                        <div class="w-14 h-14 rounded-full border-4 border-blue-500/30 border-t-blue-500 flex items-center justify-center mb-2 shadow-inner"><span id="husbandPercent" class="text-sm font-bold">0%</span></div>
+                        <p class="text-[9px] text-slate-500 font-black uppercase">Husband</p>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-14 h-14 rounded-full border-4 border-rose-500/30 border-t-rose-500 flex items-center justify-center mb-2 shadow-inner"><span id="wifePercent" class="text-sm font-bold">0%</span></div>
+                        <p class="text-[9px] text-slate-500 font-black uppercase">Wife</p>
+                    </div>
+                </div>
+            </div>
+            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-600 rounded-full blur-[100px] opacity-20 -mr-32 -mt-32"></div>
+        </div>
+
+        <footer class="mt-12 mb-16 flex flex-col items-center gap-3 text-slate-400">
+            <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest border-b border-slate-200 pb-2">
+                <span>2026/04 START</span><span class="text-slate-200">|</span><span>AMORTIZATION TRACKER</span>
+            </div>
+            <p class="text-[10px] opacity-70 text-center max-w-md px-4">
+                ※月々の住宅ローン支払額は、元利均等方式に基づき算出しています。選択した日付時点での正確な残債と利息内訳を表示しています。
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const START_DATE = new Date('2026-04-01');
+        const MORTGAGE_YEARS = 35;
+        const TOTAL_MONTHS = MORTGAGE_YEARS * 12;
+        const PRINCIPAL_H = 26300000;
+        const PRINCIPAL_W = 20000000;
+
+        function format(num) {
+            return num.toLocaleString();
+        }
+
+        function calculate() {
+            const reportDateVal = document.getElementById('reportDate').value;
+            const [year, month] = reportDateVal.split('-').map(Number);
+            const selectedDate = new Date(year, month - 1, 1);
+            const elapsed = Math.max(0, (selectedDate.getFullYear() - START_DATE.getFullYear()) * 12 + (selectedDate.getMonth() - START_DATE.getMonth()));
+            const dateLabel = `${year}年${month}月`;
+
+            // 楽天カード
+            const commonTotal = Number(document.getElementById('commonCardAmount').value) || 0;
+            const hRatio = Number(document.getElementById('husbandRatio').value);
+            document.getElementById('husbandRatioDisplay').innerText = hRatio + '%';
+            
+            const hCommon = Math.round(commonTotal * (hRatio / 100));
+            const wCommon = commonTotal - hCommon;
+
+            document.getElementById('husbandCard2Amount').innerText = format(hCommon) + ' 円';
+            document.getElementById('wifeCard2Amount').innerText = format(wCommon) + ' 円';
+
+            function getStats(pTotal, rateInputId) {
+                const annualRate = Number(document.getElementById(rateInputId).value) || 0;
+                const r = annualRate / 100 / 12;
+                
+                let payment = 0;
+                if (r === 0) {
+                    payment = Math.round(pTotal / TOTAL_MONTHS);
+                } else {
+                    payment = Math.round(pTotal * (r * Math.pow(1 + r, TOTAL_MONTHS)) / (Math.pow(1 + r, TOTAL_MONTHS) - 1));
+                }
+
+                let balance = pTotal;
+                if (elapsed > 0) {
+                    if (r === 0) {
+                        balance = pTotal - (payment * elapsed);
+                    } else {
+                        balance = pTotal * (Math.pow(1 + r, TOTAL_MONTHS) - Math.pow(1 + r, elapsed)) / (Math.pow(1 + r, TOTAL_MONTHS) - 1);
+                    }
+                }
+                balance = Math.round(Math.max(0, balance));
+                const interestPart = Math.round(balance * r);
+                const principalPart = payment - interestPart;
+                const progress = ((pTotal - balance) / pTotal) * 100;
+
+                return { payment, balance, interestPart, principalPart, progress };
+            }
+
+            const hStats = getStats(PRINCIPAL_H, 'husbandMortgageRate');
+            const wStats = getStats(PRINCIPAL_W, 'wifeMortgageRate');
+
+            document.getElementById('husbandCount').innerText = `支払い ${elapsed + 1}回目`;
+            document.getElementById('husbandRemaining').innerText = format(hStats.balance) + ' 円';
+            document.getElementById('husbandProgress').innerText = `進捗 ${hStats.progress.toFixed(1)}%`;
+            document.getElementById('husbandMonthlyMortgage').innerText = format(hStats.payment) + ' 円';
+            document.getElementById('husbandPrincipalPart').innerText = `元金: ${format(hStats.principalPart)} 円`;
+            document.getElementById('husbandInterestPart').innerText = `利息: ${format(hStats.interestPart)} 円`;
+
+            document.getElementById('wifeCount').innerText = `支払い ${elapsed + 1}回目`;
+            document.getElementById('wifeRemaining').innerText = format(wStats.balance) + ' 円';
+            document.getElementById('wifeProgress').innerText = `進捗 ${wStats.progress.toFixed(1)}%`;
+            document.getElementById('wifeMonthlyMortgage').innerText = format(wStats.payment) + ' 円';
+            document.getElementById('wifePrincipalPart').innerText = `元金: ${format(wStats.principalPart)} 円`;
+            document.getElementById('wifeInterestPart').innerText = `利息: ${format(wStats.interestPart)} 円`;
+
+            let hTotal = 0;
+            if (document.getElementById('husbandMortgageActive').checked) hTotal += hStats.payment;
+            if (document.getElementById('husbandCard1Active').checked) hTotal += Number(document.getElementById('husbandCard1Amount').value) || 0;
+            if (document.getElementById('husbandCard2Active').checked) hTotal += hCommon;
+            document.getElementById('husbandTotal').innerText = format(hTotal) + ' 円';
+
+            let wTotal = 0;
+            if (document.getElementById('wifeMortgageActive').checked) wTotal += wStats.payment;
+            if (document.getElementById('wifeCard2Active').checked) wTotal += wCommon;
+            document.getElementById('wifeTotal').innerText = format(wTotal) + ' 円';
+
+            const grand = hTotal + wTotal;
+            document.getElementById('grandTotal').innerText = format(grand);
+            document.getElementById('totalMonthLabel').innerText = `${dateLabel} 世帯支出合計`;
+
+            const hPct = grand > 0 ? Math.round((hTotal / grand) * 100) : 0;
+            const wPct = grand > 0 ? (100 - hPct) : 0;
+            
+            document.getElementById('husbandPercent').innerText = hPct + '%';
+            document.getElementById('wifePercent').innerText = wPct + '%';
+
+            return { hTotal, wTotal, grand, dateLabel, hStats, wStats, hCommon, wCommon, hPct, wPct };
+        }
+
+        document.getElementById('sendEmailBtn').addEventListener('click', () => {
+            const data = calculate();
+            const email1 = document.getElementById('recipientEmail').value;
+            const email2 = document.getElementById('recipientEmail2').value;
+            const includeRatio = document.getElementById('includeRatioActive').checked;
+            
+            // Gmail allows multiple recipients separated by comma
+            let recipients = [email1, email2].filter(e => e.trim() !== "").join(",");
+            
+            let body = `【家計報告 - ${data.dateLabel}分】\n\n`;
+
+            const commonAmt = Number(document.getElementById('commonCardAmount').value);
+            if (commonAmt > 0) {
+                body += `■ 楽天カード項目\n`;
+                body += `・総額: ${format(commonAmt)} 円\n`;
+                if (includeRatio) {
+                    body += `・負担比率: 夫 ${document.getElementById('husbandRatio').value}% / 妻 ${100 - document.getElementById('husbandRatio').value}%\n`;
+                }
+                body += `\n`;
+            }
+
+            body += `■ 夫の報告 (合計: ${format(data.hTotal)} 円)\n`;
+            if (document.getElementById('husbandMortgageActive').checked) {
+                body += `・住宅ローン: ${format(data.hStats.payment)} 円\n`;
+                body += `  (残債: ${format(data.hStats.balance)} 円 / 進捗: ${data.hStats.progress.toFixed(1)}%)\n`;
+            }
+            if (document.getElementById('husbandCard1Active').checked) {
+                body += `・${document.getElementById('husbandCard1Name').value}: ${format(Number(document.getElementById('husbandCard1Amount').value))} 円\n`;
+            }
+            if (document.getElementById('husbandCard2Active').checked) {
+                body += `・楽天カード負担分: ${format(data.hCommon)} 円\n`;
+            }
+
+            body += `\n■ 妻の報告 (合計: ${format(data.wTotal)} 円)\n`;
+            if (document.getElementById('wifeMortgageActive').checked) {
+                body += `・住宅ローン: ${format(data.wStats.payment)} 円\n`;
+                body += `  (残債: ${format(data.wStats.balance)} 円 / 進捗: ${data.wStats.progress.toFixed(1)}%)\n`;
+            }
+            if (document.getElementById('wifeCard2Active').checked) {
+                body += `・楽天カード負担分: ${format(data.wCommon)} 円\n`;
+            }
+
+            body += `\n--------------------------\n`;
+            body += `世帯支出合計: ${format(data.grand)} 円\n`;
+            body += `【支出負担割合】\n`;
+            body += `夫: ${data.hPct}% / 妻: ${data.wPct}%\n`;
+
+            const subject = `${data.dateLabel}の家計報告`;
+            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipients)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.trim())}`;
+            window.open(gmailUrl, '_blank');
+        });
+
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calculate);
+        });
+
+        window.onload = calculate;
+    </script>
+</body>
+</html>
